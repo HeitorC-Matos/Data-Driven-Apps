@@ -28,6 +28,7 @@ def exibir_observacoes(observacoes, titulo="Ferramentas utilizadas e resultados"
                 st.json(observacao["resultado"])
 
 
+# O identificador na URL permite retomar uma conversa após recarregar a página.
 conversa_id = st.query_params.get("conversa", "")
 try:
     conversa_id = str(uuid.UUID(conversa_id))
@@ -35,6 +36,7 @@ except (TypeError, AttributeError, ValueError):
     conversa_id = str(uuid.uuid4())
     st.query_params["conversa"] = conversa_id
 
+# A lista de compras é apresentada separadamente do chat e pertence à conversa atual.
 with st.sidebar:
     st.header("Minha cozinha")
     if st.button("Nova conversa", use_container_width=True):
@@ -78,6 +80,7 @@ with st.sidebar:
     st.markdown("[Fonte das receitas: TheMealDB](https://www.themealdb.com/api.php)")
     st.caption("Histórico e listas são salvos neste computador.")
 
+# Este painel chama as tools diretamente, sem enviar solicitações ao Gemini.
 with st.expander("Testar as duas ferramentas sem gastar cota de IA"):
     st.caption("Executa as ferramentas reais diretamente. Isso permite verificar consultas e compras mesmo quando o modelo estiver indisponível; não substitui o teste do agente ReAct.")
     with st.form("teste_receitas"):
@@ -106,6 +109,7 @@ with st.expander("Testar as duas ferramentas sem gastar cota de IA"):
         st.json(st.session_state["teste_compras_resultado"])
         st.caption("A lista salva pode aparecer na barra lateral após atualizar a página.")
 
+# A interface mantém os testes das ferramentas disponíveis mesmo se o modelo não iniciar.
 agente = None
 historico = []
 try:
@@ -118,6 +122,7 @@ except Exception as erro:
 if agente is not None and not historico:
     st.info("Experimente: 'Tenho frango, batata e cebola. O que posso cozinhar?' ou 'Quero fazer lasanha'.")
 
+# Exibe as mensagens salvas com as observações das ferramentas usadas em cada resposta.
 for mensagem in historico:
     with st.chat_message(mensagem["papel"]):
         st.markdown(mensagem["texto"])

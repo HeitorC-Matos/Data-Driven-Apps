@@ -6,6 +6,7 @@ import receitas
 from test_receitas import REFEICAO
 
 
+# Simula a API externa para testar busca e compras sem internet nem modelo de IA.
 def test_receita_e_compras_na_mesma_sessao(monkeypatch, tmp_path):
     monkeypatch.setattr(compras, "BANCO_DADOS", tmp_path / "compras.sqlite")
     monkeypatch.setattr(receitas, "_consultar", lambda caminho, parametros: ([REFEICAO], "https://www.themealdb.com/api/json/v1/1/lookup.php"))

@@ -13,6 +13,7 @@ def _memoria_por_caminho(caminho):
     return SqliteSaver(conexao)
 
 
+# O histórico do agente usa um arquivo separado do banco das listas de compras.
 def criar_memoria():
     BANCO_MEMORIA.parent.mkdir(parents=True, exist_ok=True)
     return _memoria_por_caminho(str(BANCO_MEMORIA))

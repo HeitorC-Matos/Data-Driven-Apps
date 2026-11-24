@@ -7,6 +7,7 @@ from compras import executar_compras
 from receitas import ErroReceita, buscar_por_ingredientes, buscar_por_nome, detalhes_receita
 
 
+# O formato JSON padroniza as observações que o agente recebe após cada ação.
 def serializar(dados):
     return json.dumps(dados, ensure_ascii=False)
 
@@ -32,6 +33,7 @@ def buscar_receitas(tipo: Literal["nome", "ingredientes", "detalhe"], consulta: 
 
 # Ferramenta 2: gerencia a lista persistente associada à conversa atual.
 def criar_ferramenta_compras(conversa_id):
+    # A função interna captura o ID da conversa, mantendo as compras isoladas por sessão.
     @tool(
         "gerenciar_lista_compras",
         description="Controla a lista de compras da conversa atual em SQLite. Ações: criar (precisa de receita_id e ingredientes_disponiveis, com itens separados por vírgula), ver, adicionar (item e quantidade), marcar, desmarcar ou remover (item: nome ou ID). Ao criar, consulta a receita original e inclui apenas os ingredientes que não foram informados como disponíveis. Não presume quantidades existentes.",

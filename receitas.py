@@ -6,6 +6,7 @@ import requests
 from config import URL_RECEITAS
 
 
+# Estes dicionários traduzem termos frequentes sem depender de outra API.
 NOMES = {
     "lasanha": "lasagne",
     "macarrao": "pasta",
@@ -156,6 +157,7 @@ class ErroReceita(Exception):
     pass
 
 
+# Remove acentos e diferenças de escrita para comparar ingredientes de forma consistente.
 def normalizar(texto):
     texto = unicodedata.normalize("NFKD", str(texto).lower())
     texto = "".join(letra for letra in texto if not unicodedata.combining(letra))
@@ -177,6 +179,7 @@ def chave_ingrediente(texto):
     return EQUIVALENCIAS.get(termo, termo)
 
 
+# Considera nomes equivalentes e variações simples, sem avaliar quantidade disponível.
 def disponivel(nome, itens):
     chave = chave_ingrediente(nome)
     return any(
@@ -190,6 +193,7 @@ def interpretar_itens(texto):
     return list(dict.fromkeys(chave_ingrediente(parte) for parte in partes if normalizar(parte)))
 
 
+# Centraliza o acesso HTTP, o tempo limite e a validação da resposta da TheMealDB.
 def _consultar(caminho, parametros):
     try:
         resposta = requests.get(f"{URL_RECEITAS}/{caminho}", params=parametros, timeout=15)
@@ -223,6 +227,7 @@ def buscar_por_nome(consulta):
     return {"modo": "nome", "consulta": consulta, "resultados": [_resumo(r) for r in refeicoes[:8]], "fonte": fonte}
 
 
+# Os ingredientes vêm de até 20 campos numerados fornecidos pela TheMealDB.
 def detalhes_receita(id_receita):
     codigo = str(id_receita).strip()
     if not codigo.isdigit() or len(codigo) > 15:
@@ -266,6 +271,7 @@ def buscar_por_ingredientes(consulta):
                 encontrados[codigo] = {"refeicao": refeicao, "frequencia": 0}
             if codigo:
                 encontrados[codigo]["frequencia"] += 1
+    # Primeiro seleciona pratos encontrados em mais pesquisas de ingredientes.
     candidatos = sorted(
         encontrados.values(),
         key=lambda item: (-item["frequencia"], item["refeicao"].get("strMeal", "")),
@@ -286,6 +292,7 @@ def buscar_por_ingredientes(consulta):
             "total_ingredientes": len(detalhe["ingredientes"]),
             "faltam_itens": len(detalhe["ingredientes"]) - len(aproveitados),
         })
+    # Depois ordena pela quantidade de ingredientes aproveitados e pelos itens faltantes.
     resultados.sort(key=lambda item: (-len(item["ingredientes_aproveitados"]), item["faltam_itens"], item["nome_original"]))
     return {
         "modo": "ingredientes",

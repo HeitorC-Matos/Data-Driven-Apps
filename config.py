@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 PASTA_PROJETO = Path(__file__).resolve().parent
 load_dotenv(PASTA_PROJETO / ".env")
 
+# As configurações ficam fora do código para permitir a instalação com outra chave.
 MODELO = os.getenv("GEMINI_MODEL", "gemini-3.8-flash").strip()
 BANCO_DADOS = PASTA_PROJETO / "dados" / "compras.sqlite"
 BANCO_MEMORIA = PASTA_PROJETO / "dados" / "conversas.sqlite"

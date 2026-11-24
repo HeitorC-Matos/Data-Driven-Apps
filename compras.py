@@ -5,6 +5,7 @@ from config import BANCO_DADOS
 from receitas import detalhes_receita, disponivel, interpretar_itens, normalizar
 
 
+# A base local guarda as listas e é criada automaticamente no primeiro acesso.
 def conectar():
     BANCO_DADOS.parent.mkdir(parents=True, exist_ok=True)
     conexao = sqlite3.connect(str(BANCO_DADOS), timeout=10)
@@ -13,6 +14,7 @@ def conectar():
     return conexao
 
 
+# As tabelas são criadas somente se ainda não existirem no banco SQLite.
 def iniciar_banco():
     with closing(conectar()) as conexao:
         conexao.executescript("""
@@ -33,6 +35,7 @@ def iniciar_banco():
         conexao.commit()
 
 
+# As consultas sempre filtram pelo ID da conversa para não misturar listas.
 def ver_lista(conversa_id):
     iniciar_banco()
     with closing(conectar()) as conexao:
@@ -58,6 +61,7 @@ def criar_lista(conversa_id, receita_id, disponiveis=""):
         return {"erro": "Receita não encontrada. Pesquise outra receita."}
     existentes = interpretar_itens(disponiveis)
     faltantes = [item for item in receita["ingredientes"] if not disponivel(item["nome_original"], existentes)]
+    # Ao escolher uma nova receita, a lista anterior é substituída na mesma transação.
     with closing(conectar()) as conexao:
         with conexao:
             conexao.execute("INSERT OR REPLACE INTO listas (conversa_id, receita_id, nome_receita) VALUES (?, ?, ?)", (conversa_id, receita["id"], receita["nome_original"]))
@@ -83,6 +87,7 @@ def adicionar_item(conversa_id, nome, quantidade=""):
     return ver_lista(conversa_id)
 
 
+# Aceita nome ou ID do item, mas só modifica registros da conversa ativa.
 def alterar_item(conversa_id, item, acao):
     if acao not in ("marcar", "desmarcar", "remover"):
         return {"erro": "Ação inválida."}
@@ -105,6 +110,7 @@ def alterar_item(conversa_id, item, acao):
     return ver_lista(conversa_id)
 
 
+# Centraliza as ações que a ferramenta de compras disponibiliza ao agente.
 def executar_compras(conversa_id, acao, receita_id="", ingredientes_disponiveis="", item="", quantidade=""):
     if acao == "criar":
         if not receita_id:

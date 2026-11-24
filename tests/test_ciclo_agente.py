@@ -12,6 +12,7 @@ import compras
 import ferramentas
 
 
+# Respostas simuladas reproduzem chamadas de ferramentas sem consumir cota Gemini.
 class ModeloSimulado(FakeMessagesListChatModel):
     def bind_tools(self, tools, **kwargs):
         return self
@@ -21,6 +22,7 @@ def resposta_ferramenta(nome, argumentos, identificador):
     return AIMessage(content="", tool_calls=[{"name": nome, "args": argumentos, "id": identificador}])
 
 
+# Verifica seleção das duas ferramentas, continuidade da conversa e isolamento entre sessões.
 def test_ciclo_com_duas_ferramentas_e_memoria(monkeypatch, tmp_path):
     monkeypatch.setattr(compras, "BANCO_DADOS", tmp_path / "compras.sqlite")
     monkeypatch.setattr(ferramentas, "buscar_por_nome", lambda termo: {"resultados": [{"id": "12345", "nome_original": "Frango com batatas"}]})

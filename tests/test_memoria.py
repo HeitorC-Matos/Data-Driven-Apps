@@ -15,6 +15,7 @@ def test_memoria_sqlite(monkeypatch, tmp_path):
     saver.conn.close()
 
 
+# Confirma que o histórico permanece disponível depois de reabrir o SQLite.
 def test_historico_persiste_ao_recriar_agente(monkeypatch, tmp_path):
     from langchain_core.language_models.fake_chat_models import FakeMessagesListChatModel
     from langchain_core.messages import AIMessage
